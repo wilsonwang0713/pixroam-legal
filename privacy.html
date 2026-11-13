@@ -90,7 +90,7 @@ footer {
 </header>
 <main>
   <h1>Privacy Policy</h1>
-  <p class="meta">Effective 12 November 2026</p>
+  <p class="meta">Effective 13 November 2026</p>
   <h2>Who we are</h2>
   <p>Pixroam is an iOS app that sells prepaid travel eSIM data plans. It is operated by YIH-HSUAN WANG, an independent developer in Taiwan ("we", "us", "Pixroam").</p>
   <p>This policy explains exactly what we collect, why we collect it, who we hand it to, and how to get it deleted. It covers the Pixroam iOS app and the ordering, payment and eSIM-delivery system behind it.</p>
@@ -100,15 +100,16 @@ footer {
   <p>eSIM credentials. Once your eSIM is issued we store the technical details needed to install and support it: the ICCID, the SM-DP+ address, the activation code, the APN, and the installation QR code.</p>
   <p>Usage and validity data. Data used, data remaining, and activation and expiry dates. Our eSIM supplier reports this back to us so the app can show it. We do not measure it ourselves.</p>
   <p>Push notification token. If you allow notifications, we store the device token Apple issues for this app and the language the app is using, only so we can tell you when an eSIM is running low on data. We never use it for marketing. You can turn notifications off at any time in iOS Settings, and the token is deleted when you sign out on that device or delete your account.</p>
+  <p>App and purchase events. The app includes Meta's software development kit (SDK) so we can measure whether our ads on Facebook and Instagram lead to installs and purchases. Through it, the app tells Meta when it is installed and opened and, when you complete a purchase, the plan's identifier, the price and the currency, together with technical details such as your device model, iOS version and IP address. It never sends your email address, your eSIM details, your trip trail, your translations or anything you type. If you allow tracking when iOS asks, it also sends your device's advertising identifier, which lets Meta connect these events with your activity on its own apps. If you don't, the advertising identifier is not shared, and Meta can use the events only for aggregated ad measurement. You can change your choice at any time in iOS Settings &gt; Privacy &amp; Security &gt; Tracking; nothing in Pixroam changes either way.</p>
   <p>Support correspondence. If you email us, we keep the message so we can answer it and follow up.</p>
   <p>Translation text. Translating happens in the Pixroam keyboard, which you can use in any app once you add it in iOS Settings and allow Full Access; it needs Full Access only to reach the network. The keyboard sends text only when it translates: automatically once it has stayed on screen for about a second, or when you tap Translate. It then sends the text before the cursor in the field you are typing in, and the language you chose, through our server to an AI translation service, and the translation comes back to you. Typing with its letter keys sends nothing. We do not store the text or the translation, and we never write them to a log. What we keep is a count of how many translations each eSIM has used, and for each request its length, its time and whether it succeeded, so we can apply the free allowance and stop abuse.</p>
   <p>The keyboard and your sign-in. To count translations against your eSIM, the keyboard uses the sign-in you made in the app, which the app shares with it through your iPhone's keychain together with the translation language you picked. With Full Access on, the keyboard also asks our server how many translations you have left when it is shown; that request carries your sign-in, not your text. It keeps its last translation in memory only while it is running, so switching back to it shows that translation again instead of sending the same text twice.</p>
   <h2>What we do not collect</h2>
   <p>We are being blunt about this, because many apps are not:</p>
   <ul>
-    <li>No advertising SDKs and no ad networks. Pixroam contains none.</li>
-    <li>No third-party analytics, attribution or crash-tracking SDKs.</li>
-    <li>No tracking of you across other companies' apps or websites. That is why the app never shows the App Tracking Transparency prompt.</li>
+    <li>No ads inside the app. Pixroam shows no advertising and contains no ad networks.</li>
+    <li>No third-party analytics or crash-tracking SDKs. The only third-party advertising SDK is Meta's, which we use to measure our own ads (see "App and purchase events" above); like most SDKs, it can also send Meta reports of its own crashes.</li>
+    <li>No tracking of you across other companies' apps or websites unless you allow it. The app asks once, through iOS's App Tracking Transparency prompt, and it works the same if you say no.</li>
     <li>No location data reaches us. If you turn on the trip calendar or the map, your location is used only on your iPhone to draw your trip trail and light up your pixel map, and it is never sent to us (see "Your trip trail" and "Your pixel map" below).</li>
     <li>No access to your contacts, camera, microphone, calendar or health data.</li>
     <li>No reading of your photos. Pixroam never reads your photos. It only adds a trip postcard to your library when you choose to save one, and for that iOS gives it add-only access.</li>
@@ -140,8 +141,9 @@ footer {
     <li>To provide support: look up your order, investigate a failed issue, answer a question.</li>
     <li>To process cancellations and refunds, and to keep the accounting and tax records we are legally required to keep (order records).</li>
     <li>To detect and prevent fraud and abuse of the service.</li>
+    <li>To measure whether our ads on Facebook and Instagram lead to installs and purchases (app and purchase events; your device's advertising identifier only if you allowed tracking).</li>
   </ul>
-  <p>If you are somewhere that requires a legal basis for processing (for example under the EU or UK GDPR): we rely on performance of a contract for account, order and delivery data; on a legal obligation for accounting and tax records; and on our legitimate interest in running a secure, non-fraudulent service for security and abuse prevention. We never rely on consent for advertising, because we do not advertise.</p>
+  <p>If you are somewhere that requires a legal basis for processing (for example under the EU or UK GDPR): we rely on performance of a contract for account, order and delivery data; on a legal obligation for accounting and tax records; and on our legitimate interest in running a secure, non-fraudulent service for security and abuse prevention. We rely on your consent, given through the iOS tracking prompt, to share your device's advertising identifier with Meta, and on our legitimate interest in measuring our own advertising for the app and purchase events sent without it.</p>
   <h2>Who we share it with</h2>
   <p>We use a small number of service providers. Each one receives only what it needs to do its job.</p>
   <ul>
@@ -150,13 +152,14 @@ footer {
     <li>eSIM Access — our eSIM supplier. To issue your eSIM we send them the plan identifier and the order reference. They return the eSIM credentials, the QR code image and the usage data the app shows you. The QR code image is hosted by the supplier.</li>
     <li>Apple — Apple performs the sign-in and passes us your email address, which is Apple's private relay address if you chose "Hide My Email". Apple's own privacy policy governs that step. If you allow notifications, Apple's push service also delivers our data-usage alerts to your device: it receives the device token and the alert itself (which eSIM is running low). If you turn on snap to roads in the trip calendar, Apple Maps receives a few points of your trail straight from your iPhone (and, to name places on the pixel map, its latest point); we never see them.</li>
     <li>Anthropic — the AI service that performs the Pixroam keyboard's translations. When the keyboard translates, only that text and the language you chose are sent to Anthropic's API, and the translation is sent back. Nothing else about you goes with it: no email address, no order and no eSIM details. Anthropic processes it under its commercial terms, which do not allow it to train its models on that content.</li>
+    <li>Meta — Meta Platforms receives the app and purchase events described above through its SDK, so we can measure our ads on Facebook and Instagram, and your device's advertising identifier only if you allowed tracking. Meta's own privacy policy governs how it processes that data.</li>
   </ul>
   <p>There is no mail provider on this list, because Pixroam never sends you email. No sign-in codes, no receipts, no newsletters, nothing: your eSIM and its QR code live in the app, and Lemon Squeezy issues the payment receipt as Merchant of Record. The only exception is a reply from us if you write to our support address first.</p>
   <p>We will also disclose data where we are legally required to, in response to a valid order or lawful request from a competent authority, or to establish, exercise or defend a legal claim. If that happens we will tell you unless the law forbids it.</p>
   <p>That is the complete list. There is nobody else.</p>
   <h2>Where your data is stored, and cross-border transfers</h2>
   <p>Your account and order data live in a Supabase PostgreSQL database hosted in Sydney, Australia (ap-southeast-2). The backend functions that read and write it run in the same Supabase project.</p>
-  <p>Because we operate from Taiwan on an Australian-hosted database, and because our payment, eSIM and translation providers operate internationally (including in the United States and the European Union), your personal data will be transferred and processed outside your own country. We only use providers that commit contractually to protecting the data they process on our behalf, and we send each of them the minimum they need.</p>
+  <p>Because we operate from Taiwan on an Australian-hosted database, and because our payment, eSIM, translation and ad-measurement providers operate internationally (including in the United States and the European Union), your personal data will be transferred and processed outside your own country. We only use providers that commit contractually to protecting the data they process on our behalf, and we send each of them the minimum they need.</p>
   <h2>How long we keep it</h2>
   <ul>
     <li>Account data (the email address Apple gave us): until you delete your account.</li>
@@ -165,6 +168,7 @@ footer {
     <li>Support correspondence: normally up to two years, so we can pick up the thread if you write again.</li>
     <li>Trip trails and the pixel map's fog: only on your iPhone, until you delete them, delete your account or delete the app. We hold no copy.</li>
     <li>Translations: the text and the translation are never stored. The per-request records (length, time, outcome) are kept for at most 90 days, or until you delete your account if that comes first. The translation count stays with the eSIM it belongs to and is cleared when you delete your account.</li>
+    <li>App and purchase events: we do not store them ourselves; Meta keeps them under its own retention policies.</li>
   </ul>
   <h2>Your rights and how to use them</h2>
   <p>You can ask us to show you the personal data we hold about you, correct it if it is wrong, delete it, or stop a particular use of it. Depending on where you live you may also have the right to receive a copy in a portable format, or to complain to your data protection authority.</p>
