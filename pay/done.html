@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Pixroam</title>
+<!--
+  付款之後的頁面（spec §5、§8）：payuni-return 把瀏覽器 303 轉到這裡（?o=<訂單編號>）。
+  這一頁不知道付款成功與否（以伺服器收到的通知為準），所以只請客人回 App 看結果。
+  訂單編號是 UUID 才放進「回到 App」的連結。不載入任何外部資源；文案七種語言，不提金流商名稱。
+-->
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #6b6b6b;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0b0b0b; --fg: #f2f2f2; --muted: #a0a0a0; }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 1.0625rem/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Helvetica, Arial, sans-serif;
+}
+main { max-width: 26rem; width: 100%; text-align: center; }
+.brand { font-weight: 700; letter-spacing: -0.01em; margin: 0 0 1.5rem; }
+h1 { font-size: 1.75rem; line-height: 1.25; letter-spacing: -0.02em; margin: 0 0 0.75rem; }
+p { margin: 0 0 1.5rem; }
+.hint { color: var(--muted); font-size: 0.9375rem; margin-top: 1.25rem; }
+.button {
+  display: inline-block; font-weight: 600; text-decoration: none;
+  padding: 0.75rem 1.5rem; border-radius: 0.875rem;
+  background: var(--fg); color: var(--bg);
+}
+</style>
+</head>
+<body>
+<main>
+  <p class="brand">Pixroam</p>
+  <h1 id="title"></h1>
+  <p id="body"></p>
+  <a class="button" id="back" href="travelesim://"></a>
+  <p class="hint" id="hint"></p>
+</main>
+<script>
+const STRINGS = {
+  "title": {
+    "en": "Go back to Pixroam",
+    "zh-Hant": "回到 Pixroam",
+    "zh-Hans": "回到 Pixroam",
+    "ja": "Pixroam に戻りましょう",
+    "ko": "Pixroam으로 돌아가세요",
+    "fr": "Revenez dans Pixroam",
+    "es": "Vuelve a Pixroam"
+  },
+  "body": {
+    "en": "Pixroam will show your payment result and your eSIM.",
+    "zh-Hant": "付款結果和你的 eSIM 會顯示在 Pixroam 裡。",
+    "zh-Hans": "付款结果和你的 eSIM 会显示在 Pixroam 里。",
+    "ja": "お支払いの結果と eSIM は Pixroam に表示されます。",
+    "ko": "결제 결과와 eSIM은 Pixroam에서 확인할 수 있습니다.",
+    "fr": "Pixroam affichera le résultat du paiement et votre eSIM.",
+    "es": "Pixroam mostrará el resultado del pago y tu eSIM."
+  },
+  "back": {
+    "en": "Back to Pixroam",
+    "zh-Hant": "回到 Pixroam",
+    "zh-Hans": "回到 Pixroam",
+    "ja": "Pixroam に戻る",
+    "ko": "Pixroam으로 돌아가기",
+    "fr": "Revenir dans Pixroam",
+    "es": "Volver a Pixroam"
+  },
+  "hint": {
+    "en": "You can also tap Done at the top of the screen.",
+    "zh-Hant": "也可以按畫面上方的「完成」。",
+    "zh-Hans": "也可以点屏幕上方的“完成”。",
+    "ja": "画面上部の「完了」をタップしても戻れます。",
+    "ko": "화면 위쪽의 ‘완료’를 눌러도 돌아갈 수 있습니다.",
+    "fr": "Vous pouvez aussi toucher « OK » en haut de l'écran.",
+    "es": "También puedes tocar «OK» en la parte superior de la pantalla."
+  }
+};
+
+function pickLanguage() {
+  const tag = (navigator.language || "en").toLowerCase();
+  if (tag.startsWith("zh")) {
+    return /hans|cn|sg|my/.test(tag) ? "zh-Hans" : "zh-Hant";
+  }
+  for (const code of ["ja", "ko", "fr", "es"]) if (tag.startsWith(code)) return code;
+  return "en";
+}
+const LANG = pickLanguage();
+document.documentElement.lang = LANG;
+for (const key of ["title", "body", "back", "hint"]) document.getElementById(key).textContent = STRINGS[key][LANG];
+
+const order = new URLSearchParams(location.search).get("o") || "";
+if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(order)) {
+  document.getElementById("back").href = "travelesim://order/" + order.toLowerCase();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta name="pay-form-url" content="https://nkxxhmhtstjrctkjjdtp.supabase.co/functions/v1/payuni-pay-form">
+<title>Pixroam</title>
+<!--
+  付款跳轉頁（spec docs/superpowers/specs/2026-11-18-payuni-checkout-design.md §5、§8）。
+  App 開 checkout_url = 這一頁#<一次性 token>。token 只在 # 後面（不會送到 GitHub），讀到後立刻從網址列清掉。
+  把 token POST 給 payuni-pay-form 換回加密好的付款表單，再自動送出到付款頁。
+  不載入任何外部資源；文案七種語言，不提金流商名稱。
+-->
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #6b6b6b;
+  --card: #f4f4f4;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0b0b0b; --fg: #f2f2f2; --muted: #a0a0a0; --card: #1a1a1a; }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 1.0625rem/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Helvetica, Arial, sans-serif;
+}
+main { max-width: 26rem; width: 100%; text-align: center; }
+.brand { font-weight: 700; letter-spacing: -0.01em; margin: 0 0 1.5rem; }
+.message { margin: 0 0 1.5rem; }
+.spinner {
+  width: 1.75rem; height: 1.75rem; margin: 0 auto 1.25rem;
+  border: 3px solid var(--card); border-top-color: var(--fg); border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+button {
+  font: inherit; font-weight: 600;
+  padding: 0.75rem 1.5rem; border-radius: 0.875rem; border: 0;
+  background: var(--fg); color: var(--bg); cursor: pointer;
+}
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <p class="brand">Pixroam</p>
+  <div class="spinner" id="spinner" aria-hidden="true"></div>
+  <p class="message" id="message" role="status" aria-live="polite"></p>
+  <button type="button" id="retry" hidden></button>
+</main>
+<script>
+const STRINGS = {
+  "loading": {
+    "en": "Opening the payment page…",
+    "zh-Hant": "正在前往付款頁…",
+    "zh-Hans": "正在前往付款页…",
+    "ja": "お支払いページを開いています…",
+    "ko": "결제 페이지를 여는 중…",
+    "fr": "Ouverture de la page de paiement…",
+    "es": "Abriendo la página de pago…"
+  },
+  "expired": {
+    "en": "This payment link has expired. Go back to Pixroam and tap Go to payment again.",
+    "zh-Hant": "這個付款連結已失效。請回到 Pixroam，再按一次「前往付款」。",
+    "zh-Hans": "这个付款链接已失效。请回到 Pixroam，再点一次“前往付款”。",
+    "ja": "このお支払いリンクは期限切れです。Pixroam に戻って、もう一度「お支払いへ」をタップしてください。",
+    "ko": "이 결제 링크는 만료되었습니다. Pixroam으로 돌아가 ‘결제하기’를 다시 눌러 주세요.",
+    "fr": "Ce lien de paiement a expiré. Revenez dans Pixroam et touchez à nouveau « Passer au paiement ».",
+    "es": "Este enlace de pago ha caducado. Vuelve a Pixroam y toca de nuevo «Ir al pago»."
+  },
+  "network": {
+    "en": "Couldn't reach the payment page. Check your connection and try again.",
+    "zh-Hant": "連不上付款頁，請確認網路連線後再試一次。",
+    "zh-Hans": "连不上付款页，请检查网络连接后再试一次。",
+    "ja": "お支払いページに接続できませんでした。通信状況を確認して、もう一度お試しください。",
+    "ko": "결제 페이지에 연결할 수 없습니다. 네트워크 연결을 확인한 뒤 다시 시도해 주세요.",
+    "fr": "Impossible de joindre la page de paiement. Vérifiez votre connexion et réessayez.",
+    "es": "No se pudo abrir la página de pago. Revisa tu conexión e inténtalo de nuevo."
+  },
+  "unavailable": {
+    "en": "Payment isn't available right now. Go back to Pixroam and try again later.",
+    "zh-Hant": "目前無法付款，請回到 Pixroam 稍後再試。",
+    "zh-Hans": "目前无法付款，请回到 Pixroam 稍后再试。",
+    "ja": "現在お支払いを受け付けられません。Pixroam に戻って、しばらくしてからお試しください。",
+    "ko": "지금은 결제할 수 없습니다. Pixroam으로 돌아가 잠시 후 다시 시도해 주세요.",
+    "fr": "Le paiement n'est pas disponible pour le moment. Revenez dans Pixroam et réessayez plus tard.",
+    "es": "El pago no está disponible en este momento. Vuelve a Pixroam e inténtalo más tarde."
+  },
+  "retry": {
+    "en": "Try again",
+    "zh-Hant": "重試",
+    "zh-Hans": "重试",
+    "ja": "再試行",
+    "ko": "다시 시도",
+    "fr": "Réessayer",
+    "es": "Reintentar"
+  }
+};
+
+function pickLanguage() {
+  const tag = (navigator.language || "en").toLowerCase();
+  if (tag.startsWith("zh")) {
+    return /hans|cn|sg|my/.test(tag) ? "zh-Hans" : "zh-Hant";
+  }
+  for (const code of ["ja", "ko", "fr", "es"]) if (tag.startsWith(code)) return code;
+  return "en";
+}
+const LANG = pickLanguage();
+document.documentElement.lang = LANG;
+const t = (key) => STRINGS[key][LANG];
+
+const ENDPOINT = document.querySelector('meta[name="pay-form-url"]').content;
+// 只接受付款服務自己的付款頁網址；伺服器回別的網址也不送出。
+const ALLOWED_ACTION = /^https:\/\/(sandbox-)?api\.payuni\.com\.tw\/api\/upp$/;
+const TOKEN = location.hash.slice(1);
+history.replaceState(null, "", location.pathname);
+
+const spinner = document.getElementById("spinner");
+const message = document.getElementById("message");
+const retry = document.getElementById("retry");
+retry.textContent = t("retry");
+
+function show(key, canRetry) {
+  message.textContent = t(key);
+  spinner.hidden = key !== "loading";
+  retry.hidden = !canRetry;
+}
+
+async function go() {
+  show("loading", false);
+  if (!/^[A-Za-z0-9_-]{20,100}$/.test(TOKEN)) return show("expired", false);
+  let res;
+  try {
+    res = await fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ token: TOKEN }),
+      cache: "no-store",
+      credentials: "omit",
+      referrerPolicy: "no-referrer",
+    });
+  } catch {
+    return show("network", true);
+  }
+  // 410：連結用過或過期 —— 不再重試（token 已經沒了），請客人回 App 重新開始。
+  if (res.status === 410) return show("expired", false);
+  if (res.status === 503) return show("unavailable", false);
+  if (!res.ok) return show("network", true);
+  let form;
+  try {
+    form = await res.json();
+  } catch {
+    return show("network", true);
+  }
+  if (!form || !ALLOWED_ACTION.test(form.action) || typeof form.fields !== "object") return show("unavailable", false);
+  const el = document.createElement("form");
+  el.method = "post";
+  el.action = form.action;
+  for (const [name, value] of Object.entries(form.fields)) {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = String(value);
+    el.appendChild(input);
+  }
+  document.body.appendChild(el);
+  el.submit();
+}
+
+retry.addEventListener("click", go);
+// 從付款頁按「上一頁」回來時，瀏覽器可能直接還原這一頁（停在轉圈圈）：token 已經用掉了，請客人回 App 重來。
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) show("expired", false);
+});
+go();
+</script>
+</body>
+</html>
